@@ -147,6 +147,9 @@ def upload_file():
         # Process the file
         df = pd.read_excel(file_path)
 
+        # Log initial DataFrame
+        app.logger.info(f'Initial DataFrame:\n{df.head()}')
+
         # Check for required columns
         missing_columns = [col for col in REQUIRED_COLUMNS if col not in df.columns]
         if missing_columns:
@@ -159,10 +162,16 @@ def upload_file():
         if 'Test2' in df.columns:
             df['Test2'] = pd.to_numeric(df['Test2'], errors='coerce')  # Convert to numeric, coercing errors to NaN
 
+        # Log DataFrame after type conversion
+        app.logger.info(f'DataFrame after type conversion:\n{df.head()}')
+
         # Example data transformation
         df['NewCol1'] = df['Test1'] + '_transformed'
         df['NewCol2'] = df['Test2'] * 2
         df['NewCol3'] = df['Test1'] + '_' + df['Test2'].astype(str)
+
+        # Log transformed DataFrame
+        app.logger.info(f'Transformed DataFrame:\n{df.head()}')
 
         # Create an Excel file from the DataFrame
         output = BytesIO()
