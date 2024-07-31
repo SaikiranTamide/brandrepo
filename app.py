@@ -67,13 +67,13 @@ def upload_file():
     df = pd.read_excel(file_path)
 
     # Check if the required columns exist
-    if 'Column1' not in df.columns or 'Column2' not in df.columns:
+    if 'Test1' not in df.columns or 'Test2' not in df.columns:
         return jsonify({'error': 'Required columns not found'}), 400
     
     # Perform the transformation
-    df['NewCol1'] = df['Column1'] + '_transformed'  # Example transformation
-    df['NewCol2'] = df['Column2'] * 2  # Example transformation
-    df['NewCol3'] = df['Column1'] + '_' + df['Column2'].astype(str)  # Example transformation
+    df['NewCol1'] = df['Test1'] + '_transformed'  # Example transformation
+    df['NewCol2'] = df['Test2'] * 2  # Example transformation
+    df['NewCol3'] = df['Test1'] + '_' + df['Test2'].astype(str)  # Example transformation
 
     # You can add more transformations as needed
 
