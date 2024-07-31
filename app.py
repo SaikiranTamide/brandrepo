@@ -45,43 +45,63 @@ from flask import Flask, request, jsonify
 import pandas as pd
 from werkzeug.utils import secure_filename
 import os
+import logging
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = '/tmp'  # Temporary folder for uploaded files
+app.config['UPLOAD_FOLDER'] = '/tmp'
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# Define required columns
+REQUIRED_COLUMNS = ['Test1', 'Test2']
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part in the request'}), 400
-    
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+    try:
+        if 'file' not in request.files:
+            app.logger.error('No file part in the request')
+            return jsonify({'error': 'No file part in the request'}), 400
 
-    # Read the Excel file
-    df = pd.read_excel(file_path)
+        file = request.files['file']
 
-    # Check if the required columns exist
-    if 'Test1' not in df.columns or 'Test2' not in df.columns:
-        return jsonify({'error': 'Required columns not found'}), 400
-    
-    # Perform the transformation
-    df['NewCol1'] = df['Test1'] + '_transformed'  # Example transformation
-    df['NewCol2'] = df['Test2'] * 2  # Example transformation
-    df['NewCol3'] = df['Test1'] + '_' + df['Test2'].astype(str)  # Example transformation
+        if file.filename == '':
+            app.logger.error('No selected file')
+            return jsonify({'error': 'No selected file'}), 400
 
-    # You can add more transformations as needed
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
 
-    # Convert DataFrame to JSON and return it
-    result = df.to_json(orient='records')
+        # Log file details
+        app.logger.info(f'File {filename} saved to {file_path}')
+        
+        # Process the file
+        df = pd.read_excel(file_path)
 
-    return jsonify({'status': 'success', 'transformed_data': result}), 200
+        # Check for required columns
+        missing_columns = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+        if missing_columns:
+            app.logger.error(f'Missing columns: {", ".join(missing_columns)}')
+            return jsonify({'error': f'Required columns not found: {", ".join(missing_columns)}'}), 400
+
+        # Ensure correct data types
+        if 'Test1' in df.columns:
+            df['Test1'] = df['Test1'].astype(str)  # Convert to string
+        if 'Test2' in df.columns:
+            df['Test2'] = pd.to_numeric(df['Test2'], errors='coerce')  # Convert to numeric, coercing errors to NaN
+
+        # Example data transformation
+        df['NewCol1'] = df['Test1'] + '_transformed'
+        df['NewCol2'] = df['Test2'] * 2
+        df['NewCol3'] = df['Test1'] + '_' + df['Test2'].astype(str)
+
+        result = df.to_json(orient='records')
+        return jsonify({'status': 'success', 'transformed_data': result}), 200
+
+    except Exception as e:
+        app.logger.error(f'Error: {str(e)}')
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-
