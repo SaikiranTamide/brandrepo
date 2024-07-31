@@ -120,10 +120,14 @@ def upload_file():
         file = request.files['file']
         df = pd.read_excel(file)
 
+        # Ensure columns are converted to appropriate types
+        df['Test1'] = pd.to_numeric(df['Test1'], errors='coerce')  # Convert to numeric, coerce errors
+        df['Test2'] = pd.to_numeric(df['Test2'], errors='coerce')  # Convert to numeric, coerce errors
+
         # Process the DataFrame and add new columns
-        df['NewCol1'] = df['Test1'] + '_transformed'
+        df['NewCol1'] = df['Test1'].astype(str) + '_transformed'
         df['NewCol2'] = df['Test2'] * 2
-        df['NewCol3'] = df['Test1'] + '_' + df['Test2'].astype(str)
+        df['NewCol3'] = df['Test1'].astype(str) + '_' + df['Test2'].astype(str)
 
         # Create an in-memory Excel file
         output = BytesIO()
@@ -143,3 +147,4 @@ def upload_file():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+
