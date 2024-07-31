@@ -17,7 +17,7 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/submit', methods=['POST'])
+@app.route('/', methods=['POST'])
 def submit():
     # Get the JSON data from the request
     data = request.get_json()
