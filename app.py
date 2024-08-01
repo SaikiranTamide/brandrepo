@@ -1,16 +1,16 @@
 ## Get Method
 
 
-from flask import Flask
+# from flask import Flask
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
+# @app.route('/')
+# def hello_world():
+#     return 'Hello, World!'
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8080)
 
 
 ## POST Method - with no file
@@ -37,6 +37,38 @@ if __name__ == '__main__':
 
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port=8080)
+
+
+##Post method accepts brand name, user input and give back by adding datetime.
+
+from flask import Flask, request, jsonify
+from datetime import datetime
+
+app = Flask(__name__)
+
+@app.route('/', methods=['POST'])
+def get_data():
+    # Get data from the request
+    data = request.get_json()
+    brand_name = data.get('brand_name')
+    user_input = data.get('user_input')
+
+    # Get the current date and time
+    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Create the response
+    response = {
+        'brand_name': brand_name,
+        'user_input': user_input,
+        'current_datetime': current_datetime
+    }
+
+    return jsonify(response)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+
+
 
 
 ## POST method with excel file and results will be in json (not excel)
