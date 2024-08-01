@@ -1,16 +1,16 @@
 ## Get Method
 
 
-# from flask import Flask
+from flask import Flask
 
-# app = Flask(__name__)
+app = Flask(__name__)
 
-# @app.route('/')
-# def hello_world():
-#     return 'Hello, World!'
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=8080)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
 
 
 ## POST Method - with no file
@@ -108,43 +108,43 @@
 
 ###Send back the excel
 
-from flask import Flask, request, jsonify, send_file
-import pandas as pd
-from io import BytesIO
+# from flask import Flask, request, jsonify, send_file
+# import pandas as pd
+# from io import BytesIO
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    try:
-        file = request.files['file']
-        df = pd.read_excel(file)
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+#     try:
+#         file = request.files['file']
+#         df = pd.read_excel(file)
 
-        # Ensure columns are converted to appropriate types
-        df['Test1'] = pd.to_numeric(df['Test1'], errors='coerce')  # Convert to numeric, coerce errors
-        df['Test2'] = pd.to_numeric(df['Test2'], errors='coerce')  # Convert to numeric, coerce errors
+#         # Ensure columns are converted to appropriate types
+#         df['Test1'] = pd.to_numeric(df['Test1'], errors='coerce')  # Convert to numeric, coerce errors
+#         df['Test2'] = pd.to_numeric(df['Test2'], errors='coerce')  # Convert to numeric, coerce errors
 
-        # Process the DataFrame and add new columns
-        df['NewCol1'] = df['Test1'].astype(str) + '_transformed'
-        df['NewCol2'] = df['Test2'] * 2
-        df['NewCol3'] = df['Test1'].astype(str) + '_' + df['Test2'].astype(str)
+#         # Process the DataFrame and add new columns
+#         df['NewCol1'] = df['Test1'].astype(str) + '_transformed'
+#         df['NewCol2'] = df['Test2'] * 2
+#         df['NewCol3'] = df['Test1'].astype(str) + '_' + df['Test2'].astype(str)
 
-        # Create an in-memory Excel file
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='TransformedData')
-        output.seek(0)
+#         # Create an in-memory Excel file
+#         output = BytesIO()
+#         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+#             df.to_excel(writer, index=False, sheet_name='TransformedData')
+#         output.seek(0)
 
-        return send_file(
-            output,
-            as_attachment=True,
-            download_name='transformed_data.xlsx',
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
+#         return send_file(
+#             output,
+#             as_attachment=True,
+#             download_name='transformed_data.xlsx',
+#             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+#         )
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8080)
 
